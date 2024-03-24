@@ -83,7 +83,7 @@ pub fn execute_create_plan(
 
     plans.push(new_plan);
 
-    PLANS.save(deps.storage, info.sender.as_bytes(), &plans)?;
+    PLANS.save(deps.storage, info.sender.to_string().as_bytes(), &plans)?;
     Ok(Response::new()
         .add_attribute("method", "execute_create_new_plan")
         .add_attribute("new_plan_id", id.to_string()))
@@ -109,7 +109,7 @@ pub fn execute_remove_plan(
         return Err(ContractError::PlanNotFound {})
     };
 
-    PLANS.save(deps.storage, info.sender.as_bytes(), &plans)?;
+    PLANS.save(deps.storage, info.sender.to_string().as_bytes(), &plans)?;
     Ok(Response::new()
         .add_attribute("method", "execute_remove_plan")
         .add_attribute("plan_id", id.to_string())
@@ -152,7 +152,7 @@ pub fn execute_update_plan(
         return Err(ContractError::PlanNotFound {})
     };
 
-    PLANS.save(deps.storage, info.sender.as_bytes(), &plans)?;
+    PLANS.save(deps.storage, info.sender.to_string().as_bytes(), &plans)?;
     
     Ok(Response::new()
     .add_attribute("method", "execute_update_plan")
