@@ -10,15 +10,15 @@ pub struct Config {
 
 #[cw_serde]
 pub struct Plan {
-    pub id: String,
+    pub id: u128,
     pub creator: String,
     pub price: String,
     pub name: Option<String>,
     pub description: Option<String>,
     pub external_url: Option<String>,
-    pub subscriber: Vec<Subscriber>,
+    pub subscribers: Vec<Subscriber>,
     pub enable_freeze: bool,
-    pub frequency: Timestamp,
+    pub frequency: String,
     pub total_payments: Uint256,
 }
 
@@ -31,5 +31,6 @@ pub struct Subscriber {
 }
 
 pub const CONFIG: Item<Config> = Item::new("config");
-pub const PLANS: Map<String, Vec<Plan>> = Map::new("plans");
+pub const PLAN_SEQ: Item<u128> = Item::new("plan_seq");
+pub const PLANS: Map<&[u8], Vec<Plan>> = Map::new("plans");
 pub const SUBSCRIBERS: Map<String, Vec<Subscriber>> = Map::new("subscribers");

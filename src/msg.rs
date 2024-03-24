@@ -8,24 +8,30 @@ pub struct InstantiateMsg {
 #[cw_serde]
 pub enum ExecuteMsg {
     CreatePlan {
+        name: Option<String>,
+        description: Option<String>,
+        price: String,
+        external_url: Option<String>,
+        enable_freeze: bool,
+        frequency: String,
     },
     UpdatePlan {
-        id: u64,
+        id: u128,
     },
     RemovePlan {
-        id: u64,
+        id: u128,
     },
     WithdrawPayments {
-        id: u64,
+        id: u128,
     },
     FreezeSubscription { 
-        id: u64,
+        id: u128,
     },
     PaySubscription {
-        id: u64,
+        id: u128,
     },
     CancelSubscription {
-        id: u64,
+        id: u128,
     }
 }
 
