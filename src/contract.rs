@@ -47,6 +47,7 @@ pub fn execute(
     match msg {
         ExecuteMsg::CreatePlan { name, description, price, external_url, enable_freeze, frequency } => execute_create_plan(deps, env, info, name, description, price, external_url, enable_freeze, frequency),
         ExecuteMsg::RemovePlan { id } => execute_remove_plan(deps, env, info, id),
+        ExecuteMsg::UpdatePlan { id, name, description, price, external_url, enable_freeze, frequency } => execute_update_plan(deps, env, info, id, name, description, price, external_url, enable_freeze, frequency),
         _ => todo!()
     }
 }
@@ -96,23 +97,68 @@ pub fn execute_remove_plan(
     id: u128,
 ) -> Result<Response, ContractError> {
     let mut plans = PLANS.may_load(deps.storage, info.sender.to_string().as_bytes())?.unwrap();
-    let plan = &mut plans[id as usize];
 
-    if info.sender.to_string() != plan.creator{
-        return Err(ContractError::Unauthorized {});
-    }
-    let id = plan.id.clone();
     if let Some(index) = plans.iter().position(|plan| plan.id == id) {
+        let plan = &mut plans[index];
+        if info.sender.to_string() != plan.creator {
+            return Err(ContractError::Unauthorized {});
+        }
+        
         plans.remove(index);
     } else {
         return Err(ContractError::PlanNotFound {})
     };
 
+    PLANS.save(deps.storage, info.sender.as_bytes(), &plans)?;
     Ok(Response::new()
         .add_attribute("method", "execute_remove_plan")
         .add_attribute("plan_id", id.to_string())
     )
 }
+
+pub fn execute_update_plan(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    id: u128,
+    name: Option<String>,
+    description: Option<String>,
+    price: Option<String>,
+    external_url: Option<String>,
+    enable_freeze: Option<bool>,
+    frequency: Option<String>,
+) -> Result<Response,ContractError> {
+    let mut plans = PLANS.may_load(deps.storage, info.sender.to_string().as_bytes())?.unwrap();
+
+    if let Some(index) = plans.iter().position(|plan| plan.id == id) {
+        let plan = &mut plans[index];
+        if info.sender.to_string() != plan.creator {
+            return Err(ContractError::Unauthorized {});
+        }
+
+        let updated_plan = Plan {
+            price: price.unwrap_or(plan.price.clone()),
+            name: name.or(plan.name.clone()), // Option or
+            description: description.or(plan.description.clone()),
+            external_url: external_url.or(plan.external_url.clone()),
+            enable_freeze: enable_freeze.unwrap_or(plan.enable_freeze.clone()),
+            frequency: frequency.unwrap_or(plan.frequency.clone()),
+            ..plan.clone()
+        };
+
+        *plan = updated_plan;
+
+    } else {
+        return Err(ContractError::PlanNotFound {})
+    };
+
+    PLANS.save(deps.storage, info.sender.as_bytes(), &plans)?;
+    
+    Ok(Response::new()
+    .add_attribute("method", "execute_update_plan")
+    .add_attribute("plan_id", id.to_string()))
+}
+
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {

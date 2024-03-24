@@ -17,6 +17,12 @@ pub enum ExecuteMsg {
     },
     UpdatePlan {
         id: u128,
+        name: Option<String>,
+        description: Option<String>,
+        price: Option<String>,
+        external_url: Option<String>,
+        enable_freeze: Option<bool>,
+        frequency: Option<String>,
     },
     RemovePlan {
         id: u128,
