@@ -33,5 +33,5 @@ pub struct Subscriber {
 
 pub const CONFIG: Item<Config> = Item::new("config");
 pub const PLAN_SEQ: Item<u128> = Item::new("plan_seq");
-pub const PLANS: Map<&[u8], Vec<Plan>> = Map::new("plans"); // addr as bytes
+pub const PLANS: Map<u128, Plan> = Map::new("plans"); // addr as bytes
 pub const SUBSCRIBERS: Map<(String, u128), Subscriber> = Map::new("subscribers"); // Addr and id keys

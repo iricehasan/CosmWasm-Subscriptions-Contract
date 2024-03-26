@@ -1,5 +1,6 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::Uint128;
+use crate::state::Subscriber;
 
 #[cw_serde]
 pub struct InstantiateMsg {
@@ -50,5 +51,27 @@ pub enum ExecuteMsg {
 #[cw_serde]
 #[derive(QueryResponses)]
 pub enum QueryMsg {
+    #[returns(QueryPlanByIdResponse)]
+    QueryPlanById { id: u128 },
+    #[returns(QueryConfigResponse)]
+    QueryConfig {},
+}
 
+#[cw_serde]
+pub struct QueryPlanByIdResponse {
+    pub id: u128,
+    pub creator: String,
+    pub price: Uint128,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub external_url: Option<String>,
+    pub subscribers: Vec<Subscriber>,
+    pub freeze_right: u64,
+    pub frequency: u64,
+    pub total_payments: Uint128,
+}
+
+#[cw_serde]
+pub struct QueryConfigResponse{
+    pub admin: String,
 }
