@@ -1,105 +1,42 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "QueryPlanByIdResponse",
+  "title": "QuerySubscriberResponse",
   "type": "object",
   "required": [
-    "balance",
-    "creator",
-    "freeze_right_per_subscriber",
-    "frequency",
-    "id",
-    "price",
-    "subscribers"
+    "address",
+    "currently_registered_plan",
+    "is_expired",
+    "left_freeze_right",
+    "next_payment",
+    "total_payments"
   ],
   "properties": {
-    "balance": {
-      "$ref": "#/definitions/Uint128"
-    },
-    "creator": {
+    "address": {
       "type": "string"
     },
-    "description": {
-      "type": [
-        "string",
-        "null"
-      ]
+    "currently_registered_plan": {
+      "type": "string"
     },
-    "external_url": {
-      "type": [
-        "string",
-        "null"
-      ]
+    "is_expired": {
+      "type": "boolean"
     },
-    "freeze_right_per_subscriber": {
+    "left_freeze_right": {
       "type": "integer",
       "format": "uint64",
       "minimum": 0.0
     },
-    "frequency": {
-      "type": "integer",
-      "format": "uint64",
-      "minimum": 0.0
+    "next_payment": {
+      "$ref": "#/definitions/Timestamp"
     },
-    "id": {
-      "type": "integer",
-      "format": "uint64",
-      "minimum": 0.0
-    },
-    "name": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "price": {
-      "$ref": "#/definitions/Uint128"
-    },
-    "subscribers": {
+    "total_payments": {
       "type": "object",
       "additionalProperties": {
-        "$ref": "#/definitions/Subscriber"
+        "$ref": "#/definitions/Uint128"
       }
     }
   },
   "additionalProperties": false,
   "definitions": {
-    "Subscriber": {
-      "type": "object",
-      "required": [
-        "address",
-        "currently_registered_plan",
-        "is_expired",
-        "left_freeze_right",
-        "next_payment",
-        "total_payments"
-      ],
-      "properties": {
-        "address": {
-          "type": "string"
-        },
-        "currently_registered_plan": {
-          "type": "string"
-        },
-        "is_expired": {
-          "type": "boolean"
-        },
-        "left_freeze_right": {
-          "type": "integer",
-          "format": "uint64",
-          "minimum": 0.0
-        },
-        "next_payment": {
-          "$ref": "#/definitions/Timestamp"
-        },
-        "total_payments": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/Uint128"
-          }
-        }
-      },
-      "additionalProperties": false
-    },
     "Timestamp": {
       "description": "A point in time in nanosecond precision.\n\nThis type can represent times from 1970-01-01T00:00:00Z to 2554-07-21T23:34:33Z.\n\n## Examples\n\n``` # use cosmwasm_std::Timestamp; let ts = Timestamp::from_nanos(1_000_000_202); assert_eq!(ts.nanos(), 1_000_000_202); assert_eq!(ts.seconds(), 1); assert_eq!(ts.subsec_nanos(), 202);\n\nlet ts = ts.plus_seconds(2); assert_eq!(ts.nanos(), 3_000_000_202); assert_eq!(ts.seconds(), 3); assert_eq!(ts.subsec_nanos(), 202); ```",
       "allOf": [

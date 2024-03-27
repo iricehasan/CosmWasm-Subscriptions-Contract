@@ -27,10 +27,10 @@ pub enum ContractError {
     #[error("Not enough Balance")]
     NotEnoughBalance {},
 
-    #[error("Wrong amount send (price: price)")]
+    #[error("Wrong amount send (price: {price})")]
     WrongAmountSent { price: Uint128 },
 
-    #[error("Cannot freeze subscription for this plan (id: id)")]
-   CannotFreezeForThisPlan { id: u128 },
+    #[error("Cannot freeze subscription for this plan (id: {id})")]
+   CannotFreezeForThisPlan { id: u64 },
 
 }
