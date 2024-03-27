@@ -40,6 +40,9 @@ pub enum ExecuteMsg {
     Subscribe {
         id: u128,
     },
+    RenewSubscription {
+        id: u128,
+    },
     PaySubscription {
         id: u128,
     },

@@ -52,6 +52,7 @@ pub fn execute(
         ExecuteMsg::RemovePlan { id } => execute_remove_plan(deps, env, info, id),
         ExecuteMsg::UpdatePlan { id, name, description, price, external_url, freeze_right, frequency } => execute_update_plan(deps, env, info, id, name, description, price, external_url, freeze_right, frequency),
         ExecuteMsg::Subscribe {id} => execute_subscribe(deps, env, info, id),
+        ExecuteMsg::RenewSubscription { id } => execute_renew_subscription(deps, env, info, id),
         ExecuteMsg::PaySubscription { id } => execute_pay_subscription(deps, env, info, id),
         ExecuteMsg::CancelSubscription { id } => execute_cancel_subscription(deps, env, info, id),
         ExecuteMsg::FreezeSubscription { id, duration_day } => execute_freeze_subscription(deps, env, info, id, duration_day),
@@ -186,10 +187,54 @@ pub fn execute_subscribe(
     PLANS.save(deps.storage, id, &plan)?;
 
     Ok(Response::new()
-        .add_event(Event::new("Subcribed"))
+        .add_event(Event::new("Subscribed"))
         .add_attribute("plan", id.to_string().clone())
-        .add_attribute("subsrciber", info.sender.to_string()))
+        .add_attribute("subscriber", info.sender.to_string()))
 
+}
+
+pub fn execute_renew_subscription(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    id: u128,
+) -> Result<Response, ContractError> {
+
+    let amount = must_pay(&info, DENOM).unwrap();
+    let mut plan = PLANS.may_load(deps.storage, id)?.unwrap();
+
+    let subscriber_key = SUBSCRIBERS.key((info.sender.to_string().clone(), id));
+        if subscriber_key.may_load(deps.storage)?.is_none() {
+            return Err(ContractError::NoSubscriptionFound {});
+        }
+
+    let mut subscriber = subscriber_key.load(deps.storage)?;
+
+
+    if amount != plan.price {
+        return Err(ContractError::WrongAmountSent { price: plan.price })
+    }
+
+    if env.block.time.seconds() <= subscriber.next_payment.seconds() {
+        subscriber.is_expired = true;
+        subscriber_key.save(deps.storage, &subscriber)?;
+        return Err(ContractError::SubscriptionNotExpired {})
+    }
+
+    subscriber.is_expired = false;
+    subscriber.total_payments.entry(id.to_string().clone())
+    .and_modify(|existing_value| *existing_value += amount);
+
+    subscriber.next_payment = env.block.time.plus_seconds(plan.frequency);
+
+    subscriber_key.save(deps.storage, &subscriber)?;
+    PLANS.save(deps.storage, id, &plan)?;
+
+    Ok(Response::new()
+        .add_event(Event::new("Subscription Renewed"))
+        .add_attribute("plan", id.to_string().clone())
+        .add_attribute("subscriber", info.sender.to_string()))
+    
 }
 
 pub fn execute_cancel_subscription(
@@ -263,12 +308,11 @@ pub fn execute_pay_subscription(
     PLANS.save(deps.storage, id, &plan)?;
 
     Ok(Response::new()
-        .add_event(Event::new("Subcribed"))
+        .add_event(Event::new("Subscription payed"))
         .add_attribute("plan", id.to_string().clone())
-        .add_attribute("subsrciber", info.sender.to_string()))
+        .add_attribute("subscriber", info.sender.to_string()))
 
 }
-
 
 pub fn execute_freeze_subscription(
     deps: DepsMut,
